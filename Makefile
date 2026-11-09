@@ -15,14 +15,14 @@ all: $(BUILD_DIR)/nexos.nes
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# Limites compartilhados: nao editar o arquivo gerado.
+# Shared limits: do not edit the generated file.
 $(BUILD_DIR)/process_config.inc: kernel/proc/config.h | $(BUILD_DIR)
 	awk '/^#define (PROCS_MAX|PROC_C_STACK_SIZE|PROC_CPU_STACK_SIZE|PROC_ZP_SIZE) / {print $$2 " = " $$3}' $< > $@
 
 $(BUILD_DIR)/video_config.inc: kernel/drivers/video.h | $(BUILD_DIR)
 	awk '/^#define (GFX_QUEUE_SIZE|GFX_COMMAND_SIZE|GFX_NMI_BUDGET) / {print $$2 " = " $$3}' $< > $@
 
-# Recompilar C quando um cabecalho mudar.
+# Recompile C when a header changes.
 $(BUILD_DIR)/kernel.s $(BUILD_DIR)/common.s $(BUILD_DIR)/exception.s $(BUILD_DIR)/kmalloc.s $(BUILD_DIR)/process.s $(BUILD_DIR)/scheduler.s $(BUILD_DIR)/video.s $(BUILD_DIR)/os.s: $(C_HEADERS)
 
 # ==========================================
@@ -34,13 +34,13 @@ $(BUILD_DIR)/font.chr: tools/build_font.py | $(BUILD_DIR)
 $(BUILD_DIR)/reset.o: kernel/boot/reset.asm $(BUILD_DIR)/video_config.inc $(BUILD_DIR)/font.chr | $(BUILD_DIR)
 	ca65 -I $(BUILD_DIR) --bin-include-dir $(BUILD_DIR) $< -o $@
 
-# Sistema de arquivos TAR somente leitura, empacotado dentro da ROM.
+# Read-only TAR filesystem packaged inside the ROM.
 $(BUILD_DIR)/rootfs.tar: $(FS_FILES) $(PROGRAM_NEX) | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/rootfs/bin
 	for program in $(PROGRAMS); do cp $(BUILD_DIR)/$$program.nex $(BUILD_DIR)/rootfs/bin/$$program.nex; done
 	tar --format ustar -b 1 -cf $@ -C filesystem $(FS_PATHS) -C $(abspath $(BUILD_DIR)/rootfs) bin
 
-# Programas C compilados separadamente; o entry point fica primeiro em CODE.
+# Compile C programs separately; place the entry point first in CODE.
 $(BUILD_DIR)/%.program.s: programs/%.c $(PROGRAM_HEADERS) | $(BUILD_DIR)
 	cc65 -t none -Oirs -I programs $< -o $@
 
@@ -54,7 +54,7 @@ $(BUILD_DIR)/%.nex: $(BUILD_DIR)/%.raw tools/pack_nex.py | $(BUILD_DIR)
 	python3 tools/pack_nex.py $< $(BUILD_DIR)/$*.lbl $@
 
 # ==========================================
-# COMPILACAO C -> ASSEMBLY
+# C COMPILATION -> ASSEMBLY
 # ==========================================
 $(BUILD_DIR)/kernel.s: kernel/kernel.c | $(BUILD_DIR)
 	cc65 -t none $< -o $@
@@ -117,7 +117,7 @@ $(BUILD_DIR)/fs_data.o: kernel/fs_data.asm $(BUILD_DIR)/rootfs.tar | $(BUILD_DIR
 	ca65 -I $(BUILD_DIR) --bin-include-dir $(BUILD_DIR) $< -o $@
 
 # ==========================================
-# ASSEMBLY -> OBJETOS
+# ASSEMBLY -> OBJECT FILES
 # ==========================================
 $(BUILD_DIR)/main.o: $(BUILD_DIR)/kernel.s
 	ca65 $< -o $@
@@ -171,7 +171,7 @@ $(BUILD_DIR)/nexos.nes: $(BUILD_DIR)/main.o $(COMMON_OBJECTS) linker/nes.cfg
 		-o $@ -m $(BUILD_DIR)/nexos.map -Ln $(BUILD_DIR)/nexos.lbl
 
 # ==========================================
-# EXECUCAO
+# RUN
 # ==========================================
 run: $(BUILD_DIR)/nexos.nes
 	$(EMULATOR) $< --headless --debug
@@ -180,7 +180,7 @@ run-ui: $(BUILD_DIR)/nexos.nes
 	$(EMULATOR) $< --debug
 
 # ==========================================
-# LIMPEZA
+# CLEANUP
 # ==========================================
 clean:
 	rm -rf $(BUILD_DIR)

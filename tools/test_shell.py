@@ -1,4 +1,4 @@
-"""Valida syscalls, terminal e executor sem teclado, na PPU do emulador."""
+"""Validate syscalls, terminal output, and shell commands through the emulator PPU."""
 from pathlib import Path
 import subprocess
 import sys
@@ -140,12 +140,12 @@ try:
     expected = ['32 \u00d7 30', 'NexOS v0.1', '', 'Initializing kernel...', '', 'Ready.', '', 'nexos>']
     assert lines(screen)[:8] == expected, lines(screen)
     preview(screen, 'shell-preview.png')
-    print('OK: tela inicial e simbolo de multiplicacao conferidos na VRAM', flush=True)
+    print('OK: boot screen and multiplication glyph verified in VRAM', flush=True)
 
     screen, writes = capture('    shell_execute("chars");')
     assert [tile for _, _, tile in writes[:95]] == list(range(32, 127)), writes
     preview(screen, 'font-preview.png')
-    print('OK: os 95 caracteres imprimiveis ASCII renderizados', flush=True)
+    print('OK: all 95 printable ASCII characters rendered', flush=True)
 
     screen, _ = capture('    shell_execute("help");')
     assert 'Commands:' in '\n'.join(lines(screen)) and 'help ver clear' in '\n'.join(lines(screen)), lines(screen)
@@ -159,7 +159,7 @@ try:
     screen, _ = capture('''    if (system_call(255, "bad")) debug_puts("ERROR syscall\\n");
     if (system_call(SYS_WRITE, 0)) debug_puts("ERROR null\\n");''')
     assert lines(screen) == ['']*30, lines(screen)
-    print('OK: comandos internos, desconhecidos e syscalls invalidas', flush=True)
+    print('OK: built-in commands, unknown commands, and invalid syscalls', flush=True)
 
     screen, writes = capture('''    system_call(SYS_DEBUG_PUTCHAR, "D");
     debug_putchar('!'); debug_putchar('\\n');
@@ -167,22 +167,22 @@ try:
     if (system_call(SYS_DEBUG_PUTCHAR, 0)) debug_puts("ERROR null debug\\n");''',
         expected_debug=b'D!\ndbg 42 000a\nDONE\n')
     assert not writes, writes
-    print('OK: syscall de debug valida argumentos e nao escreve na tela', flush=True)
+    print('OK: debug syscall validates arguments and does not write to the screen', flush=True)
 
     screen, _ = capture('    printf("%s %d %u %x %%\\n", "ok", -12, 123u, 0xABCDu);')
     assert lines(screen)[0] == 'ok -12 123 abcd %', lines(screen)
-    print('OK: printf escreve formatacao na tela e nao no canal debug', flush=True)
+    print('OK: printf writes formatted output to the screen, not the debug channel', flush=True)
 
     screen, _ = capture('    os_write("ABCDEFGHIJKLMNOP"); os_write("QRSTUVWXYZ012345"); os_write("B\\rC\\nD\\bE\\x01");')
     assert lines(screen)[:3] == ['ABCDEFGHIJKLMNOPQRSTUVWXYZ012345', 'C', 'E?'], lines(screen)
-    print('OK: 32 colunas, quebra de linha, retorno, backspace e substituicao', flush=True)
+    print('OK: 32 columns, line feed, carriage return, backspace, and substitution', flush=True)
 
     screen, _ = capture('    os_write("erase me"); shell_execute("clear");', timeout=10)
     assert lines(screen) == ['nexos>'] + ['']*29, lines(screen)
-    print('OK: clear apaga as 30 linhas sem framebuffer na RAM', flush=True)
+    print('OK: clear erases all 30 rows without a RAM framebuffer', flush=True)
 
     screen, _ = capture('    os_write("' + '\\n'*29 + 'A'*32 + '"); os_write("new page");', timeout=10)
     assert lines(screen) == ['new page'] + ['']*29, lines(screen)
-    print('OK: limite de 30 linhas abre uma pagina nova com pilhas validas', flush=True)
+    print('OK: the 30-row limit starts a new page with valid stacks', flush=True)
 finally:
     command(['make', '-B', 'all'])

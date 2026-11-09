@@ -1,4 +1,4 @@
-"""Integra C/NMI/PPU: FIFO, wrap-around, lotacao e limite por VBlank."""
+"""Integrate C/NMI/PPU tests for the queue, wraparound, capacity, and VBlank budget."""
 from pathlib import Path
 import subprocess
 
@@ -146,8 +146,8 @@ static void application(void)
     assert [c for c in remaining if c[1] == 20] == expected_b, remaining
     assert bytes(text) == b'QUEUE OK\n', text
     assert max(frames) <= 8, frames
-    print('OK: 39 comandos de tres produtores, sem perdas, com wrap-around e leitura da VRAM')
-    print('OK: fila cheia e coordenadas invalidas recusadas; produtores bloqueiam e retomam')
-    print('OK: NMI processa no maximo 8 comandos por VBlank')
+    print('OK: 39 commands from three producers, with wraparound and verified VRAM reads')
+    print('OK: full queues and invalid coordinates are rejected; producers block and resume')
+    print('OK: NMI processes at most eight commands per VBlank')
 finally:
     command(['make', '-B', 'all'])

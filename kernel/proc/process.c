@@ -86,7 +86,7 @@ void process_wait(volatile nes_uint8_t *flag)
 void yield(void)
 {
     /* If all processes are waiting, the kernel rechecks events until an NMI releases one.
-     * trabalho. Nenhuma aplicacao fica repetindo a operacao bloqueada.
+     * No application has to keep repeating the blocked operation.
      */
     do {
         next_task = scheduler_next(current_task);

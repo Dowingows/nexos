@@ -31,7 +31,7 @@
 _trigger_exception:
     brk
     .byte $EA           ; Byte de assinatura ignorado pelo BRK
-    rts                 ; Executado se o handler retornar
+    rts                 ; Executed if the handler returns.
 
 
 ; ==========================================
@@ -40,8 +40,8 @@ _trigger_exception:
 ; Entry through the IRQ/BRK vector ($FFFE).
 ;
 ; The CPU has already pushed:
-;   PC alto
-;   PC baixo
+ ;   PC high byte
+ ;   PC low byte
 ;   STATUS
 ;
 ; Save manually:
@@ -50,13 +50,13 @@ _trigger_exception:
 
 irq_handler:
     ; 1. Preserve registers
-    pha                 ; Salva A
+    pha                 ; Save A
 
     txa
-    pha                 ; Salva X
+    pha                 ; Save X
 
     tya
-    pha                 ; Salva Y
+    pha                 ; Save Y
 
     ; 2. Read the hardware stack pointer
     tsx
@@ -67,8 +67,8 @@ irq_handler:
     ; $0102,X = X
     ; $0103,X = A
     ; $0104,X = STATUS
-    ; $0105,X = PC baixo
-    ; $0106,X = PC alto
+    ; $0105,X = PC low byte
+    ; $0106,X = PC high byte
 
     ; 3. Save registers to BSS
 
@@ -90,7 +90,7 @@ irq_handler:
     ;
     ; Bit 4 of the pushed STATUS:
     ; 1 = BRK
-    ; 0 = IRQ de hardware
+    ; 0 = hardware IRQ
 
     and #$10
     beq @hardware_irq

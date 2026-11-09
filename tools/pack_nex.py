@@ -1,4 +1,4 @@
-"""Empacota um binário 6502 no formato executável mínimo NEX1."""
+"""Package a 6502 binary in the minimal NEX1 executable format."""
 import sys
 import re
 from pathlib import Path

@@ -142,7 +142,7 @@ wait_vblank_2:
     jsr clear_bss
 
     ; ======================================
-    ; Inicia o kernel em C
+    ; Start the C kernel
     ; ======================================
 
 start_c:

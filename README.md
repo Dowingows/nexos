@@ -58,7 +58,7 @@ After boot, enter commands using the configured keyboard:
 ```text
 nexos> help
 nexos> ls
-nexos> cat hello.txt
+nexos> cat HELLO.TXT
 nexos> hello
 nexos> clear
 ```

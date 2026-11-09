@@ -1,4 +1,4 @@
-"""Integracao no emulador: escalonamento, limite e diagnostico de pilha."""
+"""Emulator integration tests for scheduling, capacity, and stack diagnostics."""
 from pathlib import Path
 import subprocess
 
@@ -47,52 +47,52 @@ def variant(prefix='', extra='', single=False, release=''):
 
 try:
     command(['make', '-B', 'all'])
-    assert output() == '', 'Idle deve executar sem mensagens de erro'
+    assert output() == '', 'Idle must run without error messages'
     text = variant()
     expected = [letter + str(i) for i in range(1, 11) for letter in 'ABCDE']
     assert text.splitlines() == expected, text
-    print('OK: cinco contextos preservam contadores e ordem circular')
+    print('OK: five contexts preserve counters and circular scheduling')
 
     # The sixth creation must fail without publishing a process without a context.
     text = variant(extra='''    if (create_process((nes_uint16_t)test_a) == 0) {
         debug_putchar('L'); debug_putchar('\\n');
     }''')
     assert text.splitlines() == ['L'] + expected, text
-    print('OK: sexta criacao recusada, demais processos continuam')
+    print('OK: sixth process creation is rejected; existing processes continue')
 
     # Reuse registers and the C stack in a variadic function.
     text = variant(prefix='    debug_printf("numero=%u texto=%s\\n", 1234u, "ok");\n')
     assert text.splitlines() == ['numero=1234 texto=ok'] + expected, text
-    print('OK: debug_printf usa a syscall e preserva argumentos e contexto')
+    print('OK: debug_printf uses the syscall and preserves arguments and context')
 
     text = variant(prefix='    *((volatile unsigned char *)(0x0800 - PROC_C_STACK_SIZE)) = 0;\n')
     assert 'STACK OVERFLOW' in text and 'B1' not in text, text
-    print('OK: sentinela da pilha C detecta corrupcao')
+    print('OK: C stack guard detects corruption')
 
     text = variant(prefix='    __asm__("ldx #$b0");\n    __asm__("txs");\n')
     assert 'STACK OVERFLOW' in text and 'B1' not in text, text
-    print('OK: SP da CPU fora da janela detectado')
+    print('OK: CPU stack pointer outside its window is detected')
     text = variant(single=True)
     assert text.splitlines() == ['A' + str(i) for i in range(1, 11)], text
-    print('OK: processo unico continua apos cada yield')
+    print('OK: a single process resumes after each yield')
 
     text = variant(single=True, prefix='    *((volatile unsigned char *)(0x0800 - PROC_C_STACK_SIZE)) = 0;\n')
     assert 'STACK OVERFLOW (C)' in text and 'A2' not in text, text
-    print('OK: processo unico detecta corrupcao da pilha C')
+    print('OK: a single process detects C stack corruption')
 
     text = variant(single=True, prefix='    __asm__("ldx #$b0");\n    __asm__("txs");\n')
     assert 'STACK OVERFLOW (CPU)' in text and 'A2' not in text, text
-    print('OK: processo unico detecta SP de hardware invalido')
+    print('OK: a single process detects an invalid hardware stack pointer')
 
     text = variant(prefix='    debug_puts("WAIT\\n"); process_wait(&test_flag); debug_puts("RESUME\\n");\n',
                    release='    debug_puts("RELEASE\\n"); test_flag = 0;\n')
     assert text.splitlines() == ['WAIT', 'RELEASE', 'B1', 'C1', 'D1', 'E1', 'RESUME', 'A1'] + [
         letter + str(i) for i in range(2, 11) for letter in 'BCDEA'], text
-    print('OK: processo bloqueado cede a CPU e retoma depois do evento')
+    print('OK: a blocked process yields the CPU and resumes after its event')
 
     text = variant(single=True, prefix='    test_flag = 0; process_wait(&test_flag);\n')
     assert text.splitlines() == ['A' + str(i) for i in range(1, 11)], text
-    print('OK: evento concluido antes do bloqueio nao perde notificacao')
+    print('OK: an event completed before blocking is not missed')
 
     config_path = root / 'build/process_config.inc'
     original_config = config_path.read_text()
@@ -104,7 +104,7 @@ try:
         command(['ca65', '-I', 'build', 'kernel/proc/switch.asm', '-o', 'build/switch.o'])
         result = subprocess.run(['make', 'all'], cwd=root, capture_output=True, text=True)
         assert result.returncode != 0 and message in result.stderr, result.stderr
-    print('OK: linker recusa pilhas sem espaco e zero page incompleta')
+    print('OK: linker rejects oversized stacks and incomplete zero-page contexts')
 finally:
     # Do not leave a test ROM in place of the user ROM.
     command(['make', '-B', 'all'])

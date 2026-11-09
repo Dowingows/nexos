@@ -1,5 +1,5 @@
 NexOS v0.1
-Mini sistema operacional didatico para NES.
+Educational mini operating system for the NES.
 CPU: Ricoh 2A03.
-FS: TAR USTAR somente leitura na ROM.
-Terminal: 32 colunas por 30 linhas.
+FS: read-only USTAR archive in ROM.
+Terminal: 32 columns by 30 rows.

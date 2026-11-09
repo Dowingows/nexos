@@ -1,6 +1,6 @@
-"""Fonte didatica 5x7 em tiles NES 8x8, ASCII imprimivel 32..126.
-Desenhos definidos neste arquivo; plano 0 branco e plano 1 zerado.
-Sem bibliotecas ou fontes externas. Executar novamente ao editar os desenhos.
+"""Educational 5x7 font in 8x8 NES tiles, printable ASCII 32..126.
+Glyph patterns are defined here; plane 0 is white and plane 1 is clear.
+No external libraries or fonts are used. Rerun after editing the patterns.
 """
 from pathlib import Path
 import sys
