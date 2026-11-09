@@ -47,7 +47,7 @@ static char keyboard_scan_character(unsigned char *control_pressed)
     *control_pressed = 0;
     first_character = 0;
 
-    /* O teclado Family BASIC e uma matriz serial selecionada por $4016. */
+    /* The Family BASIC keyboard is a serial matrix selected through $4016. */
     KEYBOARD_SELECT = 0x05;
     keyboard_scan_delay();
     KEYBOARD_SELECT = 0x04;
@@ -109,7 +109,7 @@ void keyboard_process(void)
     unsigned char control_pressed;
 
     for (;;) {
-        /* Arma a espera antes da varredura para nao perder a NMI do quadro. */
+        /* Arm the wait before scanning so the frame NMI is not missed. */
         keyboard_waiting = 1;
         character = keyboard_scan_character(&control_pressed);
 
@@ -122,7 +122,7 @@ void keyboard_process(void)
             key_event_latched = 1;
         }
 
-        /* Dorme ate o proximo quadro; o shell continua executando. */
+        /* Sleep until the next frame; the shell continues running. */
         process_wait(&keyboard_waiting);
     }
 }

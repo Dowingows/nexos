@@ -3,13 +3,13 @@
 
 extern volatile unsigned char keyboard_waiting;
 
-/* Inicializa o teclado Family BASIC e fila de caracteres. */
+/* Initialize the Family BASIC keyboard and character queue. */
 void keyboard_init(void);
 
-/* Processo cooperativo: varre o teclado e cede a CPU a cada leitura. */
+/* Cooperative process that scans the keyboard and yields after each read. */
 void keyboard_process(void);
 
-/* Retira uma tecla da fila; retorna zero imediatamente se estiver vazia. */
+/* Remove a key from the queue; return zero immediately if it is empty. */
 char keyboard_read_char(void);
 
 #endif

@@ -71,8 +71,8 @@ def lines(screen):
 
 
 def preview(screen, filename):
-    # Reconstroi o conteudo verificado na VRAM com os tiles da CHR-ROM.
-    # Isso e uma visualizacao da nametable, nao uma captura da janela.
+    # Rebuild the verified VRAM contents using the CHR-ROM tiles.
+    # This visualizes the nametable; it is not a screenshot of the emulator window.
     import struct
     import zlib
     font = (root / 'build/font.chr').read_bytes()
@@ -99,7 +99,7 @@ try:
     assert (root / 'build/font.chr').read_bytes() == build()
     assert all(any(build()[code*16:code*16+8]) for code in range(33, 127))
     reset = (root / 'kernel/boot/reset.asm').read_text()
-    reset = reset.replace('    ; Libera a vaga apenas depois da escrita completa na PPU.', '''    lda #$FE
+    reset = reset.replace('    ; Free the slot only after the complete PPU write.', '''    lda #$FE
     sta $5FF0
     lda _gfx_queue,x
     sta $5FF0
@@ -130,7 +130,7 @@ try:
     lda #'E'
     sta $5FF0
 :
-    ; Libera a vaga apenas depois da escrita completa na PPU.''')
+    ; Free the slot only after the complete PPU write.''')
     reset = reset.replace('    beq @done', '    bne :+\n    jmp @done\n:')
     reset = reset.replace('    bne @command', '    beq :+\n    jmp @command\n:')
     (root / 'build/shell-reset.asm').write_text(reset)

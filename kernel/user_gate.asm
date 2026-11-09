@@ -8,7 +8,7 @@
 
 .segment "API"
 
-; Endereço estável chamado pelo código de usuário: A/X = ponteiro para texto.
+; Stable address called by user code: A/X = pointer to text.
 _nexos_write:
     jmp _nexos_write_impl
 

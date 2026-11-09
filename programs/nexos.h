@@ -6,7 +6,7 @@ typedef unsigned char (*nexos_yield_service)(void);
 typedef unsigned char (*nexos_cat_service)(const char *path);
 typedef unsigned char (*nexos_ls_service)(void);
 
-/* Chamadas fixas na ROM: saída, yield cooperativo e leitura de arquivo. */
+/* Fixed ROM calls for output, cooperative yielding, and file access. */
 #define nexos_write \
     (*(nexos_write_service)0xFF00)
 #define nexos_yield \

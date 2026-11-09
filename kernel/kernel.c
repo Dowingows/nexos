@@ -7,14 +7,14 @@
 #include "terminal/terminal.h"
 #include "fs.h"
 
-/* Definido em switch.asm */
+/* Defined in switch.asm. */
 extern nes_uint8_t current_task;
 
-/* Inicializacao das tarefas em Assembly */
+/* Assembly task initialization. */
 void start_tasks(void);
 
 /* ==========================================
- * ENTRADA DE UM PROCESSO
+ * PROCESS ENTRY
  * ========================================== */
 
 void process_entry(void)

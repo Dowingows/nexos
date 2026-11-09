@@ -9,7 +9,7 @@
 #define SYS_FS_RUN 6
 #define SYS_YIELD 7
 
-/* Porta de entrada C didatica; nao usa BRK nem cria modo privilegiado. */
+/* Educational C entry point; it does not use BRK or create a privileged mode. */
 unsigned char system_call(unsigned char number, const char *argument);
 
 #endif

@@ -19,7 +19,7 @@ struct process {
     volatile nes_uint8_t *wait_flag;
 };
 
-/* Tabela global de processos */
+/* Global process table. */
 extern struct process procs[PROCS_MAX];
 
 void process_init(void);
@@ -28,7 +28,7 @@ struct process *create_user_process(nes_uint16_t pc, const char *arguments);
 void run_process(struct process *proc);
 nes_uint8_t scheduler_next(nes_uint8_t current);
 void yield(void);
-/* Bloqueia ate a flag compartilhada ficar zero. Apenas dentro de processos. */
+/* Block until the shared flag is zero. Call only from a process. */
 void process_wait(volatile nes_uint8_t *flag);
 
 #endif

@@ -5,7 +5,7 @@ Sem bibliotecas ou fontes externas. Executar novamente ao editar os desenhos.
 from pathlib import Path
 import sys
 
-# Uma linha por glifo; sete linhas de cinco pixels, de cima para baixo.
+# One row per glyph; seven rows of five pixels, from top to bottom.
 patterns = {
 ' ': '00000 00000 00000 00000 00000 00000 00000',
 '!': '00100 00100 00100 00100 00100 00000 00100',
@@ -113,7 +113,7 @@ def build():
         rows = pattern.split()
         assert len(rows) == 7 and all(len(row) == 5 for row in rows), char
         data[ord(char)*16:ord(char)*16+8] = bytes([int(row, 2) << 2 for row in rows] + [0])
-    # Simbolo extra: multiplicacao, usado no titulo 32 x 30.
+    # Extra glyph: multiplication sign, used in the 32 x 30 title.
     data[127*16:127*16+8] = bytes([0, 0x44, 0x28, 0x10, 0x28, 0x44, 0, 0])
     return bytes(data)
 

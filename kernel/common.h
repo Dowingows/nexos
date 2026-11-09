@@ -9,7 +9,7 @@ typedef nes_uint16_t nes_size_t;
 
 #define PANIC(message) panic(__FILE__, __LINE__, message)
 
-/* Saida principal: requer processo ativo e video habilitado. */
+/* Main output; requires an active process and enabled video. */
 void printf(const char *fmt, ...);
 void panic(const char *file, unsigned int line, const char *message);
 

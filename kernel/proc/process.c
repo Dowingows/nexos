@@ -79,19 +79,19 @@ void process_wait(volatile nes_uint8_t *flag)
 {
     procs[current_task].wait_flag = flag;
     procs[current_task].state = PROC_WAITING;
-    /* O scheduler reavalia a flag: nao perde uma NMI entre publicar e ceder. */
+    /* The scheduler rechecks the flag, so an NMI between publishing and yielding is not lost. */
     yield();
 }
 
 void yield(void)
 {
-    /* Se todos aguardam, o kernel reavalia os eventos ate uma NMI liberar
+    /* If all processes are waiting, the kernel rechecks events until an NMI releases one.
      * trabalho. Nenhuma aplicacao fica repetindo a operacao bloqueada.
      */
     do {
         next_task = scheduler_next(current_task);
     } while (next_task >= PROCS_MAX);
 
-    /* Mesmo sem outra tarefa, valida as pilhas antes de continuar. */
+    /* Validate stacks before continuing, even when no other task is ready. */
     switch_context();
 }

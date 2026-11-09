@@ -21,7 +21,7 @@ def output():
 
 
 source = (root / 'kernel/kernel.c').read_text()
-# Tarefas sinteticas existem apenas na ROM temporaria de teste.
+# Synthetic tasks exist only in the temporary test ROM.
 def variant(prefix='', extra='', single=False, release=''):
     tasks = 'volatile nes_uint8_t test_flag = 1;\n'
     for name in 'abcde':
@@ -53,14 +53,14 @@ try:
     assert text.splitlines() == expected, text
     print('OK: cinco contextos preservam contadores e ordem circular')
 
-    # A sexta criacao deve falhar sem publicar um processo sem contexto.
+    # The sixth creation must fail without publishing a process without a context.
     text = variant(extra='''    if (create_process((nes_uint16_t)test_a) == 0) {
         debug_putchar('L'); debug_putchar('\\n');
     }''')
     assert text.splitlines() == ['L'] + expected, text
     print('OK: sexta criacao recusada, demais processos continuam')
 
-    # Reusa os registradores e a pilha C em uma funcao com varargs.
+    # Reuse registers and the C stack in a variadic function.
     text = variant(prefix='    debug_printf("numero=%u texto=%s\\n", 1234u, "ok");\n')
     assert text.splitlines() == ['numero=1234 texto=ok'] + expected, text
     print('OK: debug_printf usa a syscall e preserva argumentos e contexto')
@@ -106,5 +106,5 @@ try:
         assert result.returncode != 0 and message in result.stderr, result.stderr
     print('OK: linker recusa pilhas sem espaco e zero page incompleta')
 finally:
-    # Nao deixar uma ROM de teste em lugar da ROM do usuario.
+    # Do not leave a test ROM in place of the user ROM.
     command(['make', '-B', 'all'])

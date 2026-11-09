@@ -7,14 +7,14 @@
 .export _trigger_exception
 .export irq_handler
 
-; Variáveis globais definidas em exception.c
+; Global variables defined in exception.c
 .import _exception_a
 .import _exception_x
 .import _exception_y
 .import _exception_status
 .import _exception_pc
 
-; Handler de exceção implementado em C
+; Exception handler implemented in C
 .import _exception_handler
 
 .segment "CODE"
@@ -22,10 +22,10 @@
 ; ==========================================
 ; TRIGGER EXCEPTION
 ;
-; Dispara uma interrupção de software usando BRK.
-; Não altera A, X ou Y intencionalmente.
+; Trigger a software interrupt with BRK.
+; Does not intentionally modify A, X, or Y.
 ;
-; BRK empilha PC + 2 e STATUS automaticamente.
+; BRK automatically pushes PC + 2 and STATUS.
 ; ==========================================
 
 _trigger_exception:
@@ -37,19 +37,19 @@ _trigger_exception:
 ; ==========================================
 ; IRQ / BRK HANDLER
 ;
-; Entrada pelo vetor IRQ/BRK ($FFFE).
+; Entry through the IRQ/BRK vector ($FFFE).
 ;
-; A CPU já empilhou:
+; The CPU has already pushed:
 ;   PC alto
 ;   PC baixo
 ;   STATUS
 ;
-; Salvamos manualmente:
+; Save manually:
 ;   A, X, Y
 ; ==========================================
 
 irq_handler:
-    ; 1. Preservar registradores
+    ; 1. Preserve registers
     pha                 ; Salva A
 
     txa
@@ -58,10 +58,10 @@ irq_handler:
     tya
     pha                 ; Salva Y
 
-    ; 2. Obter o SP da pilha de hardware
+    ; 2. Read the hardware stack pointer
     tsx
 
-    ; Layout da pilha após os três PHA:
+    ; Stack layout after the three PHA instructions:
     ;
     ; $0101,X = Y
     ; $0102,X = X
@@ -70,7 +70,7 @@ irq_handler:
     ; $0105,X = PC baixo
     ; $0106,X = PC alto
 
-    ; 3. Capturar registradores para a BSS
+    ; 3. Save registers to BSS
 
     lda $0103,x
     sta _exception_a
@@ -81,14 +81,14 @@ irq_handler:
     lda $0101,x
     sta _exception_y
 
-    ; 4. Capturar STATUS
+    ; 4. Save STATUS
 
     lda $0104,x
     sta _exception_status
 
-    ; 5. Identificar BRK ou IRQ
+    ; 5. Identify BRK or IRQ
     ;
-    ; Bit 4 do STATUS empilhado:
+    ; Bit 4 of the pushed STATUS:
     ; 1 = BRK
     ; 0 = IRQ de hardware
 
@@ -100,7 +100,7 @@ irq_handler:
 ; ==========================================
 
 @software_brk:
-    ; 6. Capturar PC salvo pela CPU
+    ; 6. Read the PC saved by the CPU
 
     lda $0105,x
     sta _exception_pc
@@ -108,12 +108,12 @@ irq_handler:
     lda $0106,x
     sta _exception_pc+1
 
-    ; 7. Corrigir o PC.
+    ; 7. Correct the PC.
     ;
-    ; BRK salva o endereço de dois bytes
-    ; após o opcode BRK.
+    ; BRK saves the address two bytes
+    ; after the BRK opcode.
     ;
-    ; exception_pc = PC_salvo - 2
+    ; exception_pc = saved_PC - 2
 
     sec
     lda _exception_pc
@@ -124,13 +124,13 @@ irq_handler:
     sbc #0
     sta _exception_pc+1
 
-    ; 8. Chamar o handler em C.
+    ; 8. Call the C handler.
     ;
-    ; exception_handler() imprime o relatório
-    ; e entra em loop infinito.
+    ; exception_handler() prints the report
+    ; and enters an infinite loop.
     ;
-    ; Não restauramos os registradores aqui,
-    ; pois a exceção é fatal.
+    ; Do not restore registers here,
+    ; because the exception is fatal.
 
     jsr _exception_handler
 
@@ -142,21 +142,21 @@ irq_handler:
 ; ==========================================
 
 @hardware_irq:
-    ; 9. Restaurar Y, X e A.
+    ; 9. Restore Y, X, and A.
     ;
-    ; Ordem inversa do empilhamento.
+    ; Reverse the push order.
 
     pla
-    tay                 ; Restaura Y
+    tay                 ; Restore Y.
 
     pla
-    tax                 ; Restaura X
+    tax                 ; Restore X.
 
-    pla                 ; Restaura A
+    pla                 ; Restore A.
 
-    ; 10. RTI restaura STATUS e PC.
+    ; 10. RTI restores STATUS and PC.
     ;
-    ; A execução continua no endereço
-    ; interrompido pela IRQ.
+    ; Execution resumes at the address
+    ; interrupted by the IRQ.
 
     rti

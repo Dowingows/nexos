@@ -1,7 +1,7 @@
 #include "terminal.h"
 #include "../os.h"
 
-/* Apenas o shell e dono do cursor nesta primeira versao. Sem framebuffer RAM. */
+/* The shell exclusively owns the cursor in this version; there is no RAM framebuffer. */
 static unsigned char column;
 static unsigned char row;
 
@@ -50,7 +50,7 @@ void terminal_putc(unsigned char character)
     } else {
         tile = character;
         if (character == 0xD7) {
-            tile = 127; /* Multiplicacao do titulo; extensao ao ASCII. */
+            tile = 127; /* Title multiplication sign; an extension to ASCII. */
         } else if (character < 32 || character > 126) {
             tile = '?';
         }
@@ -62,7 +62,7 @@ void terminal_putc(unsigned char character)
         }
     }
     if (row == TERMINAL_ROWS) {
-        /* Primeira versao: uma pagina nova, sem framebuffer para scroll. */
+        /* This version starts a new page instead of scrolling a RAM framebuffer. */
         terminal_clear();
     }
 }

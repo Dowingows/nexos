@@ -6,7 +6,7 @@ unsigned char ppu_addr_hi;
 unsigned char ppu_addr_lo;
 unsigned char ppu_tile;
 
-/* C publica tail; apenas a NMI avanca head. Nao ha contador compartilhado. */
+/* C publishes tail; only the NMI advances head. No shared counter is needed. */
 volatile unsigned char gfx_head;
 volatile unsigned char gfx_tail;
 volatile unsigned char gfx_waiting;
@@ -37,27 +37,27 @@ unsigned char gfx_enqueue_tile(
     unsigned char tail;
     unsigned char next;
 
-    /* Valida as coordenadas */
+    /* Validate coordinates. */
     if (x >= 32 || y >= 30) {
         return 0;
     }
 
     tail = gfx_tail;
 
-    /* Calcula a proxima posicao */
+    /* Calculate the next position. */
     next = (tail + 1) & (GFX_QUEUE_SIZE - 1);
 
-    /* Verifica se a fila esta cheia */
+    /* Check whether the queue is full. */
     if (next == gfx_head) {
         return 0;
     }
 
-    /* Prepara o comando */
+    /* Prepare the command. */
     gfx_queue[tail].x = x;
     gfx_queue[tail].y = y;
     gfx_queue[tail].tile = tile;
 
-    /* Publica o comando */
+    /* Publish the command. */
     gfx_tail = next;
 
     return 1;

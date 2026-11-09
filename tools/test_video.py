@@ -72,8 +72,8 @@ static void application(void)
 
     reset = (root / 'kernel/boot/reset.asm').read_text()
     reset = reset.replace('    inc nmi_count', '    inc nmi_count\n    lda #$FD\n    sta $5FF0')
-    # Instrumentacao somente na ROM de teste. Preserva X e Y do consumidor.
-    reset = reset.replace('    ; Libera a vaga apenas depois da escrita completa na PPU.', '''    lda #$FE
+    # Instrumentation is test-ROM-only. Preserve X and Y in the consumer.
+    reset = reset.replace('    ; Free the slot only after the complete PPU write.', '''    lda #$FE
     sta $5FF0
     lda _gfx_queue,x
     sta $5FF0
@@ -82,7 +82,7 @@ static void application(void)
     lda _gfx_queue+2,x
     sta $5FF0
 
-    ; Le novamente o tile na PPU: a primeira leitura e o buffer atrasado.
+    ; Read the tile from the PPU again; the first read returns the delayed buffer.
     bit $2002
     lda _gfx_queue+1,x
     lsr a
@@ -105,7 +105,7 @@ static void application(void)
     lda #'E'
     sta $5FF0
 :
-    ; Libera a vaga apenas depois da escrita completa na PPU.''')
+    ; Free the slot only after the complete PPU write.''')
     reset = reset.replace('    beq @done', '    bne :+\n    jmp @done\n:')
     reset = reset.replace('    bne @command', '    beq :+\n    jmp @command\n:')
     (root / 'build/video-reset.asm').write_text(reset)
@@ -136,8 +136,8 @@ static void application(void)
     assert commands[:3] == [(1, 0, 1), (2, 0, 0), (3, 0, 1)], commands
     assert len(commands) == 39, commands
     remaining = commands[3:]
-    # A ordem relativa de cada produtor deve ser mantida; a intercalacao
-    # entre produtores depende de quando a NMI acontece.
+    # Preserve each producer's relative order; interleaving
+    # between producers depends on when the NMI occurs.
     expected_app = [(i, (i*3) % 30, i & 1) for i in range(20)]
     expected_a = [(i, 10, 1) for i in range(8)]
     expected_b = [(i, 20, 1) for i in range(16, 24)]

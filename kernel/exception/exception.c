@@ -3,10 +3,10 @@
 #include "../common.h"
 
 /*
- * Variáveis globais armazenadas na BSS.
+ * Global variables stored in BSS.
  *
- * O linker reserva espaço para elas na RAM.
- * O handler Assembly escreve diretamente nesses símbolos.
+ * The linker reserves RAM space for them.
+ * The Assembly handler writes directly to these symbols.
  */
 unsigned char exception_a;
 unsigned char exception_x;
@@ -15,11 +15,11 @@ unsigned char exception_status;
 unsigned int exception_pc;
 
 /*
- * Chamado pelo handler Assembly após capturar
- * o estado da CPU.
+ * Called by the Assembly handler after capturing
+ * the CPU state.
  *
- * Esta primeira versão trata exceções fatais:
- * imprime o diagnóstico e interrompe o kernel.
+ * This first version handles fatal exceptions:
+ * it prints diagnostics and halts the kernel.
  */
 void exception_handler(void)
 {
@@ -34,6 +34,6 @@ void exception_handler(void)
     debug_printf("Kernel halted.\n");
 
     for (;;) {
-        /* Exceção fatal: não retorna */
+        /* Fatal exception: this function does not return. */
     }
 }

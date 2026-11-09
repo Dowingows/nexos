@@ -14,8 +14,8 @@
 .segment "CODE"
 
 _video_init:
-    ; Boot ja aguardou os dois VBlanks exigidos pela PPU.
-    ; Inicializacao deixa exibicao e NMI desligadas para preparar a tela.
+    ; Boot has already waited for the two VBlanks required by the PPU.
+    ; Initialization leaves rendering and NMI disabled while preparing the screen.
     lda #$00
     sta $2000
     sta $2001
@@ -23,10 +23,10 @@ _video_init:
     sta _gfx_tail
     sta _gfx_waiting
 
-    ; Limpa os 960 tiles e os 64 bytes de atributos da nametable 0.
+    ; Clear the 960 tiles and 64 attribute bytes in nametable 0.
     jsr _gfx_clear
 
-    ; Inicializa todas as paletas, sem depender do estado da VRAM.
+    ; Initialize all palettes without relying on the current VRAM contents.
     bit $2002
     lda #$3F
     sta $2006
@@ -40,7 +40,7 @@ _video_init:
     cpx #32
     bne @palette
 
-    ; Nametable 0 e scroll inicial (0,0).
+    ; Select nametable 0 and initialize scroll to (0,0).
     bit $2002
     lda #$00
     sta $2000
@@ -49,53 +49,53 @@ _video_init:
     rts
 
 _ppu_write:
-    ; Reinicia a sequencia de escrita
+    ; Reset the write sequence.
     bit $2002
 
-    ; Byte alto do endereco
+    ; High address byte.
     lda _ppu_addr_hi
     sta $2006
 
-    ; Byte baixo do endereco
+    ; Low address byte.
     lda _ppu_addr_lo
     sta $2006
 
-    ; Indice do tile
+    ; Tile index.
     lda _ppu_tile
     sta $2007
 
     rts
 
 _video_enable:
-    ; Configura o scroll para (0,0)
+    ; Set scroll to (0,0).
     bit $2002
 
     lda #$00
     sta $2005
     sta $2005
 
-    ; Nametable 0, incremento de 1 e NMI no inicio de cada VBlank.
+    ; Select nametable 0, increment by 1, and enable NMI at each VBlank.
     lda #%10000000
     sta $2000
 
-    ; Habilita o fundo, inclusive na esquerda
+    ; Enable the background, including the leftmost columns.
     lda #%00001010
     sta $2001
 
     rts
 
 _gfx_clear:
-    ; Reinicia o latch
+    ; Reset the latch.
     bit $2002
 
-    ; Seleciona a nametable 0: $2000
+    ; Select nametable 0: $2000.
     lda #$20
     sta $2006
 
     lda #$00
     sta $2006
 
-    ; Escreveremos 1024 bytes com valor zero
+    ; Write 1024 zero bytes.
     lda #$00
     ldx #$04
 
@@ -114,7 +114,7 @@ _gfx_clear:
 
 .segment "RODATA"
 
-; Fundo preto, primeiro pixel branco; paletas iguais ate haver temas.
+; Black background with the first color white; palettes match until themes are added.
 default_palette:
     .repeat 8
         .byte $0F, $30, $0F, $0F

@@ -6,7 +6,7 @@ struct fs_exec_request {
     const char *arguments;
 };
 
-/* Implementacao interna chamada pelo despachante de syscalls. */
+/* Internal implementation called by the system-call dispatcher. */
 unsigned char fs_cat_kernel(const char *name);
 unsigned char fs_list_kernel(void);
 unsigned char fs_run_kernel(const struct fs_exec_request *request);

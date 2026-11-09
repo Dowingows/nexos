@@ -2,9 +2,9 @@
 #define NEXOS_SHELL_H
 
 void shell_init(void);
-/* Executor de comandos para o shell. */
+/* Shell command executor. */
 void shell_execute(const char *command);
-/* Consome no maximo uma tecla sem esperar por entrada. */
+/* Consume at most one key without waiting for input. */
 void shell_poll_input(void);
 
 #endif

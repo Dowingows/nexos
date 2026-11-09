@@ -29,7 +29,7 @@ static void debug_emit(unsigned char character)
     debug_putchar(character);
 }
 
-/* Um unico formatador; a saida e escolhida pelo chamador. */
+/* One formatter; the caller chooses the output destination. */
 static void print_format(const char *fmt, va_list vargs,
                          void (*emit)(unsigned char))
 {
@@ -115,7 +115,7 @@ static void print_format(const char *fmt, va_list vargs,
 
                 value = va_arg(vargs, unsigned int);
 
-                /* 16 bits = 4 digitos hexadecimais */
+                /* 16 bits = 4 hexadecimal digits. */
                 for (i = 3; i >= 0; i--)
                 {
                     nibble = (unsigned char)

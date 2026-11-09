@@ -115,7 +115,7 @@ unsigned char fs_list_kernel(void)
     return found;
 }
 
-/* NEX1: assinatura, tamanho do arquivo e BSS; código carregado em $0540. */
+/* NEX1 signature and file/BSS sizes; the program loads at $0540. */
 unsigned char fs_run_kernel(const struct fs_exec_request *request)
 {
     const unsigned char *header = filesystem_start;

@@ -65,7 +65,7 @@ _start_tasks:
     ldx #$FF
     txs
 
-    ; Guarda uma base limpa da zero page para reinicializar processos concluidos.
+    ; Save a clean zero-page template for restarting completed processes.
     ldx #$00
 @save_template:
     lda ZP_BASE,x
@@ -74,7 +74,7 @@ _start_tasks:
     cpx #ZP_SIZE
     bne @save_template
 
-    ; Cada contexto começa em process_entry com pilhas e registradores limpos.
+    ; Each context starts at process_entry with clean stacks and registers.
     .repeat TASK_COUNT, task
         INIT_TASK_CONTEXT task
     .endrepeat
@@ -85,7 +85,7 @@ _start_tasks:
     sta _current_task
     jmp restore_context
 
-; Reinicializa o contexto de uma vaga reutilizada depois que o processo termina.
+; Reinitialize a reused slot after its process exits.
 _process_context_init:
     .repeat TASK_COUNT, task
         cmp #task
@@ -101,9 +101,9 @@ _process_context_init:
         rts
 .endrepeat
 
-; A selecao usa current_task para salvar e next_task para restaurar.
-; Os blocos usam enderecos absolutos para nao consumir ponteiros
-; na zero page que esta sendo copiada.
+; Selection uses current_task for saving and next_task for restoring.
+; These blocks use absolute addresses to avoid consuming pointers
+; in the zero page being copied.
 _switch_context:
     php
     pha
@@ -122,7 +122,7 @@ _switch_context:
 @invalid_task:
     jmp @invalid_task
 
-; Macros mantem o mesmo formato de contexto para todas as vagas.
+; Macros keep the same context format for every slot.
 .macro SAVE_CONTEXT task
     .local stack, zp, overflow, check_top, check_guard, valid
     tsx
@@ -131,7 +131,7 @@ _switch_context:
     jmp cpu_stack_overflow
 :
     stx cpu_sps+task
-    ; Verifica SP de software sem usar a pilha ou chamar C.
+    ; Check the software stack pointer without using the stack or calling C.
     lda sp+1
     cmp #>(__CSTACK_START__ - (task+1)*C_STACK_SIZE + 1)
     bcc overflow
@@ -155,7 +155,7 @@ check_guard:
  overflow:
     jmp stack_overflow
  valid:
-    ; Um unico processo continua no mesmo contexto, apos as checagens.
+    ; A single process resumes in the same context after the checks.
     lda _next_task
     cmp _current_task
     bne :+
@@ -232,7 +232,7 @@ resume:
     plp
     rts
 
-; Diagnostico direto na porta do emulador: nao usa uma pilha corrompida.
+; Write diagnostics directly to the emulator port without using a corrupted stack.
 cpu_stack_overflow:
     ldx #(cpu_stack_error - stack_error)
     jmp print_stack_error

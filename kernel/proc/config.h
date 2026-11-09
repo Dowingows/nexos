@@ -1,7 +1,7 @@
 #ifndef NEXOS_PROC_CONFIG_H
 #define NEXOS_PROC_CONFIG_H
 
-/* Fonte unica para C e Assembly (Makefile gera process_config.inc). */
+/* Single source for C and Assembly; Makefile generates process_config.inc. */
 #define PROCS_MAX 5
 #define PROC_C_STACK_SIZE 96
 #define PROC_CPU_STACK_SIZE 64

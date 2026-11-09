@@ -13,7 +13,7 @@ unsigned char os_draw_tile(unsigned char x,
     }
 
     for (;;) {
-        /* Arma ANTES de testar: uma NMI entre falha e espera nao se perde. */
+        /* Arm before testing so an NMI between failure and waiting is not missed. */
         gfx_waiting = 1;
         if (gfx_enqueue_tile(x, y, tile)) {
             gfx_waiting = 0;

@@ -2,15 +2,9 @@
 #include "process.h"
 
 /*
- * Retorna o indice do proximo processo
- * executavel, percorrendo a tabela
- * de maneira circular.
- *
- * Se nenhum outro processo estiver
- * pronto, retorna o processo atual.
- *
- * Se nao houver nenhum executavel,
- * retorna PROCS_MAX.
+ * Return the next runnable process index by scanning the table circularly.
+ * If no other process is ready, return the current process.
+ * If no process is runnable, return PROCS_MAX.
  */
 nes_uint8_t scheduler_next(nes_uint8_t current)
 {

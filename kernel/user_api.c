@@ -1,6 +1,6 @@
 #include "syscall.h"
 
-/* ABI C chamado pelo trampoline fixo disponível aos executáveis NEX1. */
+/* C ABI called by the fixed trampoline available to NEX1 executables. */
 unsigned char nexos_write_impl(const char *text)
 {
     return system_call(SYS_WRITE, text);

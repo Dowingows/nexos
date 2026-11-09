@@ -1,16 +1,16 @@
 #ifndef NEXOS_OS_H
 #define NEXOS_OS_H
 
-/* Chamar de um processo, com video habilitado.
- * Espera cooperativamente por espaco; retorna 1 ao enfileirar ou 0 se invalido.
- * Nao espera o tile ser efetivamente exibido.
+/* Call from a process with video enabled.
+ * Wait cooperatively for space; return 1 when queued or 0 if invalid.
+ * Does not wait for the tile to be displayed.
  */
 unsigned char os_draw_tile(unsigned char x,
                            unsigned char y,
                            unsigned char tile);
 
-/* Chamadas de sistema: imprimir texto e limpar o terminal do shell.
- * Apenas dentro de processos, com video inicializado e habilitado.
+/* System calls for printing text and clearing the shell terminal.
+ * Call only from processes, with video initialized and enabled.
  */
 unsigned char os_write(const char *text);
 unsigned char os_clear(void);

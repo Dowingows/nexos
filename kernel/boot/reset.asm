@@ -19,7 +19,7 @@ ___BSS_RUN__  = __BSS_RUN__
 ___BSS_SIZE__ = __BSS_SIZE__
 
 ; ==========================================
-; Variaveis do driver grafico
+; Graphics driver variables
 ; ==========================================
 
 .include "video_config.inc"
@@ -34,8 +34,8 @@ ___BSS_SIZE__ = __BSS_SIZE__
 .import irq_handler
 
 ; ==========================================
-; Variaveis temporarias do boot
-; Devem permanecer na Zero Page
+; Temporary boot variables
+; Must remain in zero page
 ; ==========================================
 
 .segment "ZEROPAGE"
@@ -45,7 +45,7 @@ boot_dst:   .res 2
 boot_count: .res 2
 
 ; ==========================================
-; Variaveis globais
+; Global variables
 ; ==========================================
 
 .segment "BSS"
@@ -54,7 +54,7 @@ nmi_count:
     .res 1
 
 ; ==========================================
-; Cabecalho iNES
+; iNES header
 ; ==========================================
 
 .segment "HEADER"
@@ -65,7 +65,7 @@ nmi_count:
     .res 8, 0
 
 ; ==========================================
-; Codigo de inicializacao
+; Initialization code
 ; ==========================================
 
 .segment "CODE"
@@ -74,16 +74,16 @@ reset:
     sei
     cld
 
-    ; Inicializa a pilha de hardware
+    ; Initialize the hardware stack
     ldx #$FF
     txs
 
-    ; Desabilita NMI e renderizacao
+    ; Disable NMI and rendering
     lda #$00
     sta $2000
     sta $2001
 
-    ; Aguarda dois VBlanks
+    ; Wait for two VBlanks
 wait_vblank_1:
     bit $2002
     bpl wait_vblank_1
@@ -92,7 +92,7 @@ wait_vblank_2:
     bit $2002
     bpl wait_vblank_2
 
-    ; Inicializa a pilha de software do cc65
+    ; Initialize the cc65 software stack
     lda #<__CSTACK_START__
     sta sp
 
@@ -100,7 +100,7 @@ wait_vblank_2:
     sta sp+1
 
     ; ======================================
-    ; Copia DATA da ROM para RAM
+    ; Copy DATA from ROM to RAM
     ; ======================================
 
     lda #<__DATA_LOAD__
@@ -124,7 +124,7 @@ wait_vblank_2:
     jsr copy_data
 
     ; ======================================
-    ; Zera BSS
+    ; Clear BSS
     ; ======================================
 
     lda #<__BSS_RUN__
@@ -152,11 +152,11 @@ forever:
     jmp forever
 
 ; ==========================================
-; Copia DATA da ROM para RAM
+; Copy DATA from ROM to RAM
 ;
-; boot_src   = origem
-; boot_dst   = destino
-; boot_count = quantidade de bytes
+; boot_src   = source
+; boot_dst   = destination
+; boot_count = byte count
 ; ==========================================
 
 copy_data:
@@ -170,12 +170,12 @@ copy_data:
     lda (boot_src),y
     sta (boot_dst),y
 
-    ; Incrementa ponteiro de origem
+    ; Increment the source pointer
     inc boot_src
     bne :+
     inc boot_src+1
 :
-    ; Incrementa ponteiro de destino
+    ; Increment the destination pointer
     inc boot_dst
     bne :+
     inc boot_dst+1
@@ -190,7 +190,7 @@ copy_data:
     rts
 
 ; ==========================================
-; Zera BSS
+; Clear BSS
 ; ==========================================
 
 clear_bss:
@@ -203,7 +203,7 @@ clear_bss:
     lda #$00
     sta (boot_dst),y
 
-    ; Incrementa ponteiro de destino
+    ; Increment the destination pointer
     inc boot_dst
     bne :+
     inc boot_dst+1
@@ -218,7 +218,7 @@ clear_bss:
     rts
 
 ; ==========================================
-; Decrementa contador de 16 bits
+; Decrement the 16-bit counter
 ; ==========================================
 
 decrement_count:
@@ -232,11 +232,11 @@ decrement_count:
     rts
 
 ; ==========================================
-; NMI - Atualizacao grafica no VBlank
+; NMI - graphics update during VBlank
 ; ==========================================
 
 nmi:
-    ; Preserva A, X e Y
+    ; Preserve A, X, and Y
     pha
 
     txa
@@ -245,30 +245,30 @@ nmi:
     tya
     pha
 
-    ; Contador de VBlanks
+    ; VBlank counter
     inc nmi_count
 
-    ; Libera o processo de entrada uma vez por quadro.
+    ; Wake the input process once per frame.
     lda #$00
     sta _keyboard_waiting
 
-    ; Somente comandos publicados por tail sao visiveis.
+    ; Only commands published by tail are visible.
     lda _gfx_head
     cmp _gfx_tail
     beq @done
 
-    ; O numero de comandos por frame e limitado mesmo com fila maior.
+    ; Limit commands per frame, even if the queue is larger.
     ldy #GFX_NMI_BUDGET
     bit $2002
 @command:
-    ; X = head * 3 (x, y, tile). Nao usa temporarios da zero page do C.
+    ; X = head * 3 (x, y, tile). Does not use C zero-page temporaries.
     lda _gfx_head
     asl a
     clc
     adc _gfx_head
     tax
 
-    ; Endereco alto = $20 | (y >> 3).
+    ; High address byte = $20 | (y >> 3).
     lda _gfx_queue+1,x
     lsr a
     lsr a
@@ -276,7 +276,7 @@ nmi:
     ora #$20
     sta $2006
 
-    ; Endereco baixo = ((y & 7) << 5) | x.
+    ; Low address byte = ((y & 7) << 5) | x.
     lda _gfx_queue+1,x
     asl a
     asl a
@@ -289,8 +289,8 @@ nmi:
     lda _gfx_queue+2,x
     sta $2007
 
-    ; Libera a vaga apenas depois da escrita completa na PPU.
-    ; gfx_head e escrito somente aqui; gfx_tail e escrito somente pelo C.
+    ; Free the slot only after the complete PPU write.
+    ; Only this code writes gfx_head; only C writes gfx_tail.
     lda _gfx_head
     clc
     adc #1
@@ -306,37 +306,37 @@ nmi:
     bne @command
 
 @restore_scroll:
-    ; Restaura nametable 0, incremento de 1 e NMI habilitada.
+    ; Restore nametable 0, increment by 1, and keep NMI enabled.
     lda #%10000000
     sta $2000
 
-    ; Restaura o scroll para (0,0)
-    ; Nosso driver ainda usa apenas a nametable 0
+    ; Restore scroll to (0,0).
+    ; This driver still uses only nametable 0.
     bit $2002
 
     lda #$00
     sta $2005
     sta $2005
 
-    ; Nao escrever em $2006 aqui: isso alteraria o scroll restaurado.
+    ; Do not write to $2006 here; it would change the restored scroll.
 
 @done:
-    ; Restaura Y
+    ; Restore Y.
     pla
     tay
 
-    ; Restaura X
+    ; Restore X.
     pla
     tax
 
-    ; Restaura A
+    ; Restore A.
     pla
 
-    ; Retorna da interrupcao
+    ; Return from interrupt.
     rti
 
 ; ==========================================
-; Vetores de interrupcao
+; Interrupt vectors
 ; ==========================================
 
 .segment "VECTORS"
@@ -351,5 +351,5 @@ nmi:
 
 .segment "CHARS"
 
-    ; ASCII 32..126: um tile por codigo, mais o simbolo de multiplicacao.
+    ; ASCII 32..126: one tile per code, plus the multiplication sign.
     .incbin "font.chr"
